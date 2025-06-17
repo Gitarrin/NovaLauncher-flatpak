@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Novarin
+Icon=cc.novarin.novarinlinux
+Exec=run.sh --token %u
+MimeType=x-scheme-handler/novarin;
+NoDisplay=true
+StartupNotify=true
+Terminal=true
+Type=Application
+Categories=Game;
+X-Flatpak=cc.novarin.novarinlinux
