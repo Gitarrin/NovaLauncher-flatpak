@@ -1,0 +1,191 @@
+app-id: cc.novarin.novarinlinux
+runtime: org.freedesktop.Platform
+base: org.winehq.Wine
+base-version: stable-24.08
+runtime-version: &runtime-version '24.08'
+sdk: org.freedesktop.Sdk
+inherit-extensions:
+  - org.freedesktop.Platform.Compat.i386
+  - org.freedesktop.Platform.GL32
+  - org.winehq.Wine.gecko
+  - org.winehq.Wine.mono
+command: run.sh
+finish-args:
+  - --allow=devel
+  - --allow=multiarch
+  - --allow=per-app-dev-shm
+  - --share=network
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --device=all
+  - --system-talk-name=org.freedesktop.UDisks2
+  - --env=LD_LIBRARY_PATH=/app/lib:/app/lib32
+  - --env=PATH=/app/bin:/app/utils/bin:/usr/bin:/usr/lib/extensions/vulkan/MangoHud/bin/:/usr/bin:/usr/lib/extensions/vulkan/OBSVkCapture/bin/:/usr/lib/extensions/vulkan/gamescope/bin/
+  - --env=GST_PLUGIN_SYSTEM_PATH=/app/lib/gstreamer-1.0:/usr/lib/x86_64-linux-gnu/gstreamer-1.0:/app/lib32/gstreamer-1.0:/usr/lib/i386-linux-gnu/gstreamer-1.0
+  - --require-version=1.1.2
+  - --env=DXVK_LOG_LEVEL=none
+  - --env=DXVK_HUD=1
+  - --env=WINEPREFIX=/var/data/wine-prefix
+  - --env=WINEARCH=win32
+  - --device=all
+
+add-extensions:
+  org.gnome.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
+    version: *runtime-version
+
+  org.gnome.Platform.Compat.i386.Debug:
+    directory: lib/debug/lib/i386-linux-gnu
+    version: *runtime-version
+    no-autodownload: true
+
+  com.valvesoftware.Steam.CompatibilityTool:
+    subdirectories: true
+    directory: share/steam/compatibilitytools.d
+    version: stable
+    versions: stable;beta;test
+    no-autodownload: true
+    autodelete: false
+
+  com.valvesoftware.Steam.Utility:
+    subdirectories: true
+    directory: utils
+    version: stable
+    versions: stable;beta;test
+    add-ld-path: lib
+    merge-dirs: bin
+    no-autodownload: true
+    autodelete: false
+
+x-compat-i386-opts: &compat_i386_opts
+  prepend-pkg-config-path: /app/lib32/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig
+  ldflags: -L/app/lib32
+  append-path: /usr/lib/sdk/toolchain-i386/bin
+  env:
+    CC: i686-unknown-linux-gnu-gcc
+    CXX: i686-unknown-linux-gnu-g++
+  libdir: /app/lib32
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+cleanup-commands:
+  - mkdir -p /app/utils
+  - mkdir -p /app/share/steam/compatibilitytools.d
+  - mkdir -p /app/share/vulkan/implicit_layer.d/
+
+modules:
+
+  # Tools / Codecs
+  # ----------------------------------------------------------------------------
+  - name: vmtouch
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/hoytech/vmtouch
+        commit: af86e27675843b3c7e4ddfee66ddbaf44eff43c4
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/hoytech/vmtouch/commits
+          commit-query: first( .[].sha )
+          timestamp-query: first( .[].commit.committer.date )
+    build-commands:
+      - make
+      - make install PREFIX=/app
+  - name: vulkan-tools
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DGLSLANG_INSTALL_DIR=/app
+      - -DVULKAN_HEADERS_INSTALL_DIR=/app
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: git
+        url: https://github.com/KhronosGroup/Vulkan-Tools.git
+        tag: sdk-1.3.261.1
+        commit: a7da7027ca9fd0901639f02619c226da9c6036f1
+        x-checker-data:
+          type: git
+          tag-pattern: ^sdk-([\d.]+)$
+    modules:
+      - name: vulkan-tools
+        buildsystem: cmake-ninja
+        sources:
+          - type: git
+            url: https://github.com/KhronosGroup/Vulkan-Headers.git
+            tag: sdk-1.3.261.1
+            commit: 85c2334e92e215cce34e8e0ed8b2dce4700f4a50
+            x-checker-data:
+              type: git
+              tag-pattern: ^sdk-([\d.]+)$
+
+  # - name: install-soda
+  #   buildsystem: simple
+  #   build-commands:
+  #     - mkdir -p /app/lib/soda
+  #     - ls -la
+  #     - tar -xf soda.tar.xz -C /app/lib/soda --strip-components=1
+  #     - chmod +x /app/lib/soda
+  #   sources:
+  #     - type: file
+  #       url: https://github.com/bottlesdevs/wine/releases/download/soda-9.0-1/soda-9.0-1-x86_64.tar.xz
+  #       sha256: 8404701c5366b642f5a16cc0a64f0b9f77b25a9c5cc541bd61a725b62432782f
+  #       dest-filename: soda.tar.xz
+  - name: dvxk
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/dvxk/
+      - ls -la
+      - tar -xf dvxk.tar.gz -C /app/lib/dvxk --strip-components=1
+      - install -Dm755 setup-dvxk.sh /app/lib/dvxk/setup-dvxk.sh # copy the setup file from https://gist.github.com/doitsujin/1652e0e3382f0e0ff611e70142684d01
+    sources:
+      - type: file
+        path: setup-dvxk.sh
+      - type: file
+        url: https://github.com/doitsujin/dxvk/releases/download/v2.6.2/dxvk-2.6.2.tar.gz
+        sha256: 17761876556afd55736cb895d184f5a1c55d43350f1b1e3b129f8d28706d7992
+        dest-filename: dvxk.tar.gz
+
+  - name: novarin-app
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 cc.novarin.novarinlinux.desktop /app/share/applications/cc.novarin.novarinlinux.desktop
+      - install -Dm755 discord_game_sdk.dll /app/share/launcher/discord_game_sdk.dll
+      - install -Dm755 discord_game_sdk.so /app/share/launcher/discord_game_sdk.so
+      - install -Dm755 NovaLauncher.exe /app/share/launcher/NovaLauncher.exe
+      - install -Dm755 NovarinRPCManager.exe /app/share/launcher/NovarinRPCManager.exe
+      - install -Dm755 run.sh /app/bin/run.sh
+      - install -Dm755 cc.novarin.novarinlinux-256.png /app/share/icons/hicolor/256x256/apps/cc.novarin.novarinlinux.png
+      - install -Dm755 cc.novarin.novarinlinux-128.png /app/share/icons/hicolor/128x128/apps/cc.novarin.novarinlinux.png
+      - install -Dm755 cc.novarin.novarinlinux-64.png /app/share/icons/hicolor/64x64/apps/cc.novarin.novarinlinux.png
+    sources:
+      - type: file
+        path: cc.novarin.novarinlinux.desktop
+      - type: file
+        path: launcher/discord_game_sdk.dll
+      - type: file
+        path: launcher/discord_game_sdk.so
+      - type: file
+        path: launcher/NovaLauncher.exe
+      - type: file
+        path: launcher/NovarinRPCManager.exe
+      - type: file
+        path: run.sh
+      - type: file
+        path: icons/cc.novarin.novarinlinux-256.png
+      - type: file
+        path: icons/cc.novarin.novarinlinux-128.png
+      - type: file
+        path: icons/cc.novarin.novarinlinux-64.png
+sdk-extensions:
+  - org.freedesktop.Sdk.Compat.i386
+  - org.freedesktop.Sdk.Extension.toolchain-i386
