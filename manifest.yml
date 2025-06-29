@@ -1,3 +1,4 @@
+# Thank you bottles https://github.com/bottlesdevs/Bottles/blob/main/build-aux/com.usebottles.bottles.Devel.json
 app-id: cc.novarin.novarinlinux
 runtime: org.freedesktop.Platform
 base: org.winehq.Wine
@@ -6,6 +7,7 @@ runtime-version: &runtime-version '24.08'
 sdk: org.freedesktop.Sdk
 inherit-extensions:
   - org.freedesktop.Platform.Compat.i386
+  - org.freedesktop.Platform.ffmpeg_full.i386
   - org.freedesktop.Platform.GL32
   - org.winehq.Wine.gecko
   - org.winehq.Wine.mono
@@ -26,10 +28,12 @@ finish-args:
   - --env=GST_PLUGIN_SYSTEM_PATH=/app/lib/gstreamer-1.0:/usr/lib/x86_64-linux-gnu/gstreamer-1.0:/app/lib32/gstreamer-1.0:/usr/lib/i386-linux-gnu/gstreamer-1.0
   - --require-version=1.1.2
   - --env=DXVK_LOG_LEVEL=none
-  - --env=DXVK_HUD=1
+  #- --env=DXVK_HUD=1
   - --env=WINEPREFIX=/var/data/wine-prefix
   - --env=WINEARCH=win32
-  - --device=all
+  - --filesystem=xdg-pictures/Novarin Screenshots:create
+  - --talk-name=org.freedesktop.portal.Desktop
+  - --talk-name=org.freedesktop.portal.OpenURI
 
 add-extensions:
   org.gnome.Platform.Compat.i386:
@@ -40,24 +44,6 @@ add-extensions:
     directory: lib/debug/lib/i386-linux-gnu
     version: *runtime-version
     no-autodownload: true
-
-  com.valvesoftware.Steam.CompatibilityTool:
-    subdirectories: true
-    directory: share/steam/compatibilitytools.d
-    version: stable
-    versions: stable;beta;test
-    no-autodownload: true
-    autodelete: false
-
-  com.valvesoftware.Steam.Utility:
-    subdirectories: true
-    directory: utils
-    version: stable
-    versions: stable;beta;test
-    add-ld-path: lib
-    merge-dirs: bin
-    no-autodownload: true
-    autodelete: false
 
 x-compat-i386-opts: &compat_i386_opts
   prepend-pkg-config-path: /app/lib32/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig
@@ -85,7 +71,6 @@ cleanup-commands:
   - mkdir -p /app/share/vulkan/implicit_layer.d/
 
 modules:
-
   # Tools / Codecs
   # ----------------------------------------------------------------------------
   - name: vmtouch
@@ -128,18 +113,6 @@ modules:
               type: git
               tag-pattern: ^sdk-([\d.]+)$
 
-  # - name: install-soda
-  #   buildsystem: simple
-  #   build-commands:
-  #     - mkdir -p /app/lib/soda
-  #     - ls -la
-  #     - tar -xf soda.tar.xz -C /app/lib/soda --strip-components=1
-  #     - chmod +x /app/lib/soda
-  #   sources:
-  #     - type: file
-  #       url: https://github.com/bottlesdevs/wine/releases/download/soda-9.0-1/soda-9.0-1-x86_64.tar.xz
-  #       sha256: 8404701c5366b642f5a16cc0a64f0b9f77b25a9c5cc541bd61a725b62432782f
-  #       dest-filename: soda.tar.xz
   - name: dvxk
     buildsystem: simple
     build-commands:
@@ -164,6 +137,7 @@ modules:
       - install -Dm755 NovaLauncher.exe /app/share/launcher/NovaLauncher.exe
       - install -Dm755 NovarinRPCManager.exe /app/share/launcher/NovarinRPCManager.exe
       - install -Dm755 run.sh /app/bin/run.sh
+      # - install -Dm755 dummy-explorer.sh /app/bin/dummy-explorer.sh
       - install -Dm755 cc.novarin.novarinlinux-256.png /app/share/icons/hicolor/256x256/apps/cc.novarin.novarinlinux.png
       - install -Dm755 cc.novarin.novarinlinux-128.png /app/share/icons/hicolor/128x128/apps/cc.novarin.novarinlinux.png
       - install -Dm755 cc.novarin.novarinlinux-64.png /app/share/icons/hicolor/64x64/apps/cc.novarin.novarinlinux.png

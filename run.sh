@@ -5,7 +5,7 @@ export PATH="/app/bin:/app/lib/wine/bin:$PATH"
 show_first_setup_dialog() {
     zenity --progress --pulsate --no-cancel \
         --title="Novarin" \
-        --text="Preparing for first launch, this may take several minutes...\nThe OK button does not do anything, wait for this to finish." &
+        --text="Preparing for first launch, this may take several minutes...\nThe OK button does not do anything, this dialog will close automatically once configuration is done." &
     DIALOG_PID=$!
     # Window positioning maybe, dont think it works on wayland
     # wmctrl -i -r $(xdotool getactivewindow) -b add,above || true
@@ -40,6 +40,22 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     # Wait for wineboot to complete
     /app/lib/dvxk/setup-dvxk.sh /app/lib/dvxk/ install
     
+    # Setup the pics folder
+    mkdir -p "$HOME/Pictures/Novarin Screenshots"
+
+    # Create Wine prefix directories if they don't exist
+    WINE_USERNAME=$(whoami)
+    WINE_PICTURES_DIR="/var/data/wine-prefix/drive_c/users/$WINE_USERNAME/Pictures"
+    mkdir -p "$WINE_PICTURES_DIR"
+
+    # Remove existing Roblox directory if it exists and create symbolic link
+    rm -rf "$WINE_PICTURES_DIR/Roblox"
+    ln -sf "$HOME/Pictures/Novarin Screenshots" "$WINE_PICTURES_DIR/Roblox"
+
+    # I apoligze to people who have to see this cursed thing
+    # mv "$WINEPREFIX/drive_c/windows/explorer.exe" "$WINEPREFIX/drive_c/windows/explorer_real.exe"
+    # cp "/app/bin/dummy-explorer.sh" "$WINEPREFIX/drive_c/windows/explorer.exe"
+
     
     # Mark DXVK as installed
     touch "$WINEPREFIX/.dxvk_installed"
