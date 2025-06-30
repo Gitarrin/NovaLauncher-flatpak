@@ -79,7 +79,7 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
    
 fi
 
-WINE_USER=$(find "$WINEPREFIX/drive_c/users/" -maxdepth 1 -type d | grep -v "Public\|users" | xargs basename 2>/dev/null || echo "$(whoami)")
+WINE_USER=$(find "$WINEPREFIX/drive_c/users/" -maxdepth 1 -type d | grep -v "Public\|users" | xargs basename 2>/dev/null || whoami)
 NOVARIN_DIR="$WINEPREFIX/drive_c/users/$WINE_USER/AppData/Local/Novarin"
 
 # Ensure Novarin directory exists
