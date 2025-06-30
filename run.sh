@@ -36,8 +36,12 @@ fi
 # Setup DXVK if not already installed
 if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     echo "Installing DXVK..."
-    winetricks corefonts # this also helps the DVXK install properly
-    # Wait for wineboot to complete
+
+    # this also helps the DVXK install properly. Why is it not in here? because it would break winetricks for some reason.
+    winetricks -q wininet winhttp mfc80 mfc90 gdiplus wsh56 urlmon pptfonts corefonts ie8 pdh \
+        qasf wmp11 # The video recorder feature
+
+
     /app/lib/dvxk/setup-dvxk.sh /app/lib/dvxk/ install
     
     # Setup the pics folder
@@ -45,17 +49,29 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
 
     # Create Wine prefix directories if they don't exist
     WINE_USERNAME=$(whoami)
-    WINE_PICTURES_DIR="/var/data/wine-prefix/drive_c/users/$WINE_USERNAME/Pictures"
-    mkdir -p "$WINE_PICTURES_DIR"
+    WINE_USERS_DIR="/var/data/wine-prefix/drive_c/users/$WINE_USERNAME/"
+
+    # Configure Pictures folder
+    mkdir -p "$WINE_USERS_DIR/Pictures"
 
     # Remove existing Roblox directory if it exists and create symbolic link
-    rm -rf "$WINE_PICTURES_DIR/Roblox"
-    ln -sf "$HOME/Pictures/Novarin Screenshots" "$WINE_PICTURES_DIR/Roblox"
+    rm -rf "$WINE_USERS_DIR/Pictures/Roblox"
+    ln -sf "$HOME/Pictures/Novarin Screenshots" "$WINE_USERS_DIR/Pictures/Roblox"
 
-    # I apoligze to people who have to see this cursed thing
-    # mv "$WINEPREFIX/drive_c/windows/explorer.exe" "$WINEPREFIX/drive_c/windows/explorer_real.exe"
-    # cp "/app/bin/dummy-explorer.sh" "$WINEPREFIX/drive_c/windows/explorer.exe"
+    # Configure Pictures folder
+    mkdir -p "$WINE_USERS_DIR/Videos"
 
+    # Remove existing Roblox directory if it exists and create symbolic link
+    rm -rf "$WINE_USERS_DIR/Videos/Roblox"
+    ln -sf "$HOME/Videos/Novarin Recordings" "$WINE_USERS_DIR/Videos/Roblox"
+    
+
+    # Registry tweaks to avoid the wine filemanager
+    wine reg import /app/share/regfiles/remap-filemanager.reg
+
+    # And commit war crimes to use our script instead of the wine browser
+    # mv "$WINEPREFIX/drive_c/windows/system32/winebrowser.exe" "$WINEPREFIX/drive_c/windows/system32/winebrowser_real.exe"
+    # cp "/app/bin/dummy-filemanager.sh" "$WINEPREFIX/drive_c/windows/system32/winebrowser.exe"
     
     # Mark DXVK as installed
     touch "$WINEPREFIX/.dxvk_installed"
@@ -80,5 +96,5 @@ if [ "$FIRST_RUN" = true ]; then
 fi
 
 # shellcheck disable=SC2068
-wine "$NOVARIN_DIR/NovaLauncher.exe" -d --hide-wine-message $@
+wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
 wineserver -w

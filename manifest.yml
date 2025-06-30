@@ -32,8 +32,10 @@ finish-args:
   - --env=WINEPREFIX=/var/data/wine-prefix
   - --env=WINEARCH=win32
   - --filesystem=xdg-pictures/Novarin Screenshots:create
+  - --filesystem=xdg-pictures/Novarin Recordings:create
   - --talk-name=org.freedesktop.portal.Desktop
   - --talk-name=org.freedesktop.portal.OpenURI
+  - --filesystem=xdg-run/discord-ipc-0 # Discord RPC
 
 add-extensions:
   org.gnome.Platform.Compat.i386:
@@ -137,7 +139,8 @@ modules:
       - install -Dm755 NovaLauncher.exe /app/share/launcher/NovaLauncher.exe
       - install -Dm755 NovarinRPCManager.exe /app/share/launcher/NovarinRPCManager.exe
       - install -Dm755 run.sh /app/bin/run.sh
-      # - install -Dm755 dummy-explorer.sh /app/bin/dummy-explorer.sh
+      - install -Dm755 dummy-filemanager.sh /app/bin/dummy-filemanager.sh
+      - install -Dm755 remap-filemanager.reg /app/share/regfiles/remap-filemanager.reg
       - install -Dm755 cc.novarin.novarinlinux-256.png /app/share/icons/hicolor/256x256/apps/cc.novarin.novarinlinux.png
       - install -Dm755 cc.novarin.novarinlinux-128.png /app/share/icons/hicolor/128x128/apps/cc.novarin.novarinlinux.png
       - install -Dm755 cc.novarin.novarinlinux-64.png /app/share/icons/hicolor/64x64/apps/cc.novarin.novarinlinux.png
@@ -154,6 +157,10 @@ modules:
         path: launcher/NovarinRPCManager.exe
       - type: file
         path: run.sh
+      - type: file
+        path: dummy-filemanager.sh
+      - type: file
+        path: regfiles/remap-filemanager.reg
       - type: file
         path: icons/cc.novarin.novarinlinux-256.png
       - type: file

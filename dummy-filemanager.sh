@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# this is a fucking warcrime
-
 # Get the Linux username
 USERNAME=$(whoami)
 
@@ -27,5 +25,8 @@ if [[ "$LINUX_PATH" == "/home/$USERNAME/Pictures/Roblox/"* ]]; then
     xdg-open "$REDIRECT_PATH"
 else
     # If not matching, fall back to original explorer
-    exec wine "$WINEPREFIX/drive_c/windows/explorer_real.exe" "$@"
+    truepath="${2%?}"
+    unixpath="$(printf '%s\n' "$truepath" | sed -e 's/\\/\//g' -e 's/^.://'; echo x)"
+    unixpath="${unixpath%?x}"
+    xdg-open "$unixpath"
 fi
