@@ -29,7 +29,7 @@ fi
 # Create Wine prefix if it doesn't exist
 if [ ! -d "$WINEPREFIX" ]; then
     echo "Initializing Wine prefix..."
-    wineboot -i
+    /app/lib/soda/bin/wineboot -i
     # Additional Wine configuration can go here
 fi
 
@@ -38,9 +38,8 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     echo "Installing DXVK..."
 
     # this also helps the DVXK install properly. Why is it not in here? because it would break winetricks for some reason.
-    winetricks -q wininet winhttp mfc80 mfc90 gdiplus wsh56 urlmon pptfonts corefonts ie8 pdh \
+    WINE=/app/lib/soda/bin/wine winetricks -q wininet winhttp mfc80 mfc90 gdiplus wsh56 urlmon pptfonts corefonts ie8 pdh \
         qasf wmp11 # The video recorder feature
-
 
     /app/lib/dvxk/setup-dvxk.sh /app/lib/dvxk/ install
     
@@ -48,8 +47,8 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     mkdir -p "$HOME/Pictures/Novarin Screenshots"
 
     # Create Wine prefix directories if they don't exist
-    WINE_USERNAME=$(whoami)
-    WINE_USERS_DIR="/var/data/wine-prefix/drive_c/users/$WINE_USERNAME/"
+    #WINE_USERNAME=$(whoami)
+    WINE_USERS_DIR="/var/data/wine-prefix/drive_c/users/steamuser/"
 
     # Configure Pictures folder
     mkdir -p "$WINE_USERS_DIR/Pictures"
@@ -67,7 +66,7 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     
 
     # Registry tweaks to avoid the wine filemanager
-    wine reg import /app/share/regfiles/remap-filemanager.reg
+    /app/lib/soda/bin/wine reg import /app/share/regfiles/remap-filemanager.reg
 
     # And commit war crimes to use our script instead of the wine browser
     # mv "$WINEPREFIX/drive_c/windows/system32/winebrowser.exe" "$WINEPREFIX/drive_c/windows/system32/winebrowser_real.exe"
@@ -79,8 +78,8 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
    
 fi
 
-WINE_USER=$(find "$WINEPREFIX/drive_c/users/" -maxdepth 1 -type d | grep -v "Public\|users" | xargs basename 2>/dev/null || whoami)
-NOVARIN_DIR="$WINEPREFIX/drive_c/users/$WINE_USER/AppData/Local/Novarin"
+# WINE_USER=$(find "$WINEPREFIX/drive_c/users/" -maxdepth 1 -type d | grep -v "Public\|users" | xargs basename 2>/dev/null || whoami)
+NOVARIN_DIR="$WINEPREFIX/drive_c/users/steamuser/AppData/Local/Novarin"
 
 # Ensure Novarin directory exists
 mkdir -p "$NOVARIN_DIR"
@@ -96,5 +95,5 @@ if [ "$FIRST_RUN" = true ]; then
 fi
 
 # shellcheck disable=SC2068
-wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
-wineserver -w
+WINEDLLOVERRIDES="wininet=b,n;winhttp=n,b" /app/lib/soda/bin/wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
+/app/lib/soda/bin/wineserver -w

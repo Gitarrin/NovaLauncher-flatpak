@@ -130,6 +130,20 @@ modules:
         sha256: 17761876556afd55736cb895d184f5a1c55d43350f1b1e3b129f8d28706d7992
         dest-filename: dvxk.tar.gz
 
+  # Soda is from Bottles, has some 
+  - name: install-soda
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/soda
+      - ls -la
+      - tar -xf soda.tar.xz -C /app/lib/soda --strip-components=1
+      - chmod +x /app/lib/soda
+    sources:
+      - type: file
+        url: https://github.com/bottlesdevs/wine/releases/download/soda-9.0-1/soda-9.0-1-x86_64.tar.xz
+        sha256: 8404701c5366b642f5a16cc0a64f0b9f77b25a9c5cc541bd61a725b62432782f
+        dest-filename: soda.tar.xz
+
   - name: novarin-app
     buildsystem: simple
     build-commands:
