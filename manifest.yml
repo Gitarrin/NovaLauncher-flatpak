@@ -138,10 +138,20 @@ modules:
       - ls -la
       - tar -xf soda.tar.xz -C /app/lib/soda --strip-components=1
       - chmod +x /app/lib/soda
+    # sources:
+    #   - type: file
+    #     url: https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz
+    #     sha256: 9cef292850a470b1a2637b22959051ab36784dccdb4966c19607790a1e3a96f1
+    #     dest-filename: soda.tar.xz
+    # sources:
+    #   - type: file
+    #     url: https://github.com/Kron4ek/Wine-Builds/releases/download/proton-10.0-2/wine-proton-10.0-2-x86.tar.xz
+    #     sha256: 6adf5c31cae3f3aee4a726f269f2cd3078e4e4c010992758ff25f972f1b50c80
+    #     dest-filename: soda.tar.xz
     sources:
       - type: file
-        url: https://github.com/bottlesdevs/wine/releases/download/soda-9.0-1/soda-9.0-1-x86_64.tar.xz
-        sha256: 8404701c5366b642f5a16cc0a64f0b9f77b25a9c5cc541bd61a725b62432782f
+        url: https://github.com/Kron4ek/Wine-Builds/releases/download/10.12/wine-10.12-staging-tkg-x86.tar.xz
+        sha256: 43351c4468989f42f48dbb1b77389b1309de2da4d6327d00881643fc4e5a729f
         dest-filename: soda.tar.xz
 
   - name: novarin-app

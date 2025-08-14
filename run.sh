@@ -38,7 +38,7 @@ if [ ! -f "$WINEPREFIX/.dxvk_installed" ]; then
     echo "Installing DXVK..."
 
     # this also helps the DVXK install properly. Why is it not in here? because it would break winetricks for some reason.
-    WINE=/app/lib/soda/bin/wine winetricks -q wininet winhttp mfc80 mfc90 gdiplus wsh56 urlmon pptfonts corefonts ie8 pdh \
+    WINE=/app/lib/soda/bin/wine winetricks -q wininet winhttp mfc80 mfc90 gdiplus wsh56 urlmon pptfonts corefonts pdh \
         qasf wmp11 # The video recorder feature
 
     /app/lib/dvxk/setup-dvxk.sh /app/lib/dvxk/ install
@@ -95,5 +95,5 @@ if [ "$FIRST_RUN" = true ]; then
 fi
 
 # shellcheck disable=SC2068
-WINEDLLOVERRIDES="wininet=b,n;winhttp=n,b" /app/lib/soda/bin/wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
+DXVK_HUD=1 WINEDLLOVERRIDES="wininet=b,n;winhttp=n,b" /app/lib/soda/bin/wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
 /app/lib/soda/bin/wineserver -w
