@@ -95,5 +95,5 @@ if [ "$FIRST_RUN" = true ]; then
 fi
 
 # shellcheck disable=SC2068
-DXVK_HUD=1 WINEDLLOVERRIDES="wininet=b,n;winhttp=n,b" /app/lib/soda/bin/wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
+WINEDLLOVERRIDES="wininet=b,n;winhttp=n,b" /app/lib/soda/bin/wine "$NOVARIN_DIR/NovaLauncher.exe" --hide-wine-message $@
 /app/lib/soda/bin/wineserver -w
